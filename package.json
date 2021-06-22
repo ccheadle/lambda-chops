@@ -1,0 +1,43 @@
+{
+  "name": "lambda-chops",
+  "version": "0.1.0",
+  "description": "Example Serverless lambda function",
+  "main": "src/handler.js",
+  "scripts": {
+    "build": "npm install",
+    "envars:dev": "aws secretsmanager get-secret-value --secret-id lambda/dev/lambda-chops",
+    "envars:prod": "aws secretsmanager get-secret-value --secret-id lambda/prod/lambda-chops",
+    "eslint": "eslint .",
+    "offline": "npx sls offline start -s dev",
+    "test": "npx serverless invoke local -f lambda-chops -p tests/test.json",
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chazcheadle/lambda-chops.git"
+  },
+  "keywords": [
+    "lambda",
+    "aws",
+    "serverless",
+    "nodejs"
+  ],
+  "author": "Charles Cheadle",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chazcheadle/lambda-chops/issues"
+  },
+  "homepage": "https://github.com/chazcheadle/lambda-chops#readme",
+  "dependencies": {
+    "aws-sdk": "^2.931.0",
+    "eslint": "^7.28.0",
+    "husky": "^6.0.0",
+    "prettier": "^2.3.1",
+    "serverless-api-gateway-caching": "^1.7.3",
+    "serverless-offline": "^7.0.0",
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "serverless-deployment-bucket": "^1.5.1"
+  }
+}

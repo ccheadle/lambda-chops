@@ -1,0 +1,14 @@
+{
+  "extends": ["base"],
+  "commitMessagePrefix": "[RENOVATE]",
+  "branchPrefix": "renovate/",
+  "baseBranches": ["development"],
+  "packageRules": [
+    {
+      "groupName": "Rollup - Minor",
+      "groupSlug": "rollup-minor",
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"]
+    }
+  ],
+  "reviewersFromCodeOwners": true
+}

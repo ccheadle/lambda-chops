@@ -1,0 +1,27 @@
+name: Deploy Prod
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy-dev:
+    strategy:
+      matrix:
+        node-version: [12.x]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install Serverless Framework
+      run: npm install -g serverless
+    - name: Serverless AWS authentication
+      run: sls config credentials --provider aws --key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    - name: Install NPM dependencies
+      run: |
+        npm ci
+        npm run build --if-present
+    - name: Deploy Lambda functions
+      run: sls deploy -s prod

@@ -1,0 +1,76 @@
+service: lambda-chops
+
+configValidationMode: error
+variablesResolutionMode: 20210326
+
+plugins:
+  - serverless-offline
+  - serverless-deployment-bucket
+  - serverless-api-gateway-caching
+
+custom:
+  defaultRegion: us-east-1
+  stage: ${opt:stage, 'dev'}
+  awsSecrets: ${ssm:/aws/reference/secretsmanager/lambda/${self:custom.stage}/lambda-chops}
+  apiGatewayCaching:
+    enabled: true
+    clusterSize: '0.5'
+    ttlInSeconds: 60
+    dataEncrypted: false
+    perKeyInvalidation:
+      requireAuthorization: false
+  logLevelMap:
+    prod: info
+    dev: info
+  logLevel: ${self:custom.logLevelMap.${opt:stage}, 'debug'}
+
+provider:
+  name: aws
+  lambdaHashingVersion: 20201221
+  runtime: nodejs12.x
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  environment:
+    LOG_LEVEL: ${self:custom.logLevel}
+    S3_BUCKET_NAME: ${self:custom.awsSecrets.S3_BUCKET_NAME}
+  deploymentBucket:
+    name: lambda-chops-deployment-bucket
+    serverSideEncryption: AES256
+  tracing:
+    apiGateway: true
+    lambda: true
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - xray:PutTraceSegments
+        - xray:PutTelemetryRecords
+      Resource:
+        - "*"
+
+
+functions:
+  lambda-chops:
+    handler: src/handler.handler
+    description: Lambda function that writes a to an S3 bucket
+    role: arn:aws:iam::585330600215:role/lambda-chops-execute
+    memorySize: 320
+    timeout: 5
+    events:
+      - http:
+          path: /retrieve
+          method: get
+          cors: true
+          caching:
+            enabled: true
+
+      - http:
+          path: /{any+}
+          method: get
+          cors: true
+          caching:
+            enabled: true
+
+      - http:
+          path: /
+          method: post
+          cors: true
